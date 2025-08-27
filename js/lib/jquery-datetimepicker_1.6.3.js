@@ -1,3 +1,21 @@
+
+/* Naxedim patch: replace eval-based inline settings parsing in MV3 */
+function __outiiil_safeParseAttr(val){
+    if (val === undefined || val === null) return val;
+    if (typeof val !== 'string') return val;
+    var v = val.trim();
+    if (v === 'true') return true;
+    if (v === 'false') return false;
+    if (/^-?\d+(?:\.\d+)?$/.test(v)) return Number(v);
+    if ((v[0] === '{' && v[v.length-1] === '}') || (v[0] === '[' && v[v.length-1] === ']')){
+        try { return JSON.parse(v); } catch(e){}
+    }
+    if ((v[0] === '"' && v[v.length-1] === '"') || (v[0] === "'" && v[v.length-1] === "'")){
+        return v.slice(1,-1);
+    }
+    return v;
+}
+
 /*! jQuery Timepicker Addon - v1.6.3 - 2016-04-20
 * http://trentrichardson.com/examples/timepicker
 * Copyright (c) 2016 Trent Richardson; Licensed MIT */
@@ -177,7 +195,7 @@
 					var attrValue = $input.attr('time:' + attrName);
 					if (attrValue) {
 						try {
-							inlineSettings[attrName] = eval(attrValue);
+							inlineSettings[attrName] = __outiiil_safeParseAttr(attrValue);
 						} catch (err) {
 							inlineSettings[attrName] = attrValue;
 						}
